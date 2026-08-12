@@ -1,63 +1,58 @@
 package com.example.myapplication.ui.theme
 
+import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF440803),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFF341203),
-    onPrimaryContainer = Color(0xFFFFDBCF),
-    secondary = Color(0xFFFFB5A0),
-    surface = Color(0xFF1E1E1E),          // Clean, modern dark surface
-    onSurface = Color(0xFFEEEEEE),        // High contrast text
-    onSurfaceVariant = Color(0xFFB0B0B0), // Secondary text
-    outline = Color(0xFFFF7A59)
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
 )
 
-val LocalBackgroundGradient = staticCompositionLocalOf<Brush> {
-    Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent))
-}
+private val LightColorScheme = lightColorScheme(
+    primary = Purple40,
+    secondary = PurpleGrey40,
+    tertiary = Pink40
+
+    /* Other default colors to override
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    */
+)
 
 @Composable
-fun ProfileTheme(
+fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else lightColorScheme()
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
 
-    // Smooth, subtle top glow gradient
-    val gradient = if (darkTheme) {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFFFF5722).copy(alpha = 0.25f),
-                Color(0xFF121212)
-            ),
-            startY = 0f,
-            endY = 900f
-        )
-    } else {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFFFF5722).copy(alpha = 0.15f),
-                Color(0xFFF8F9FA)
-            ),
-            startY = 0f,
-            endY = 900f
-        )
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
     }
 
-    CompositionLocalProvider(LocalBackgroundGradient provides gradient) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            content = content
-        )
-    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
+    )
 }
